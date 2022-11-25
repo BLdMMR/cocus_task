@@ -1,8 +1,7 @@
 package cocus.interview.task.data_access
 
+import cocus.interview.task.structures.GitHubBranch
 import cocus.interview.task.structures.GitHubRepository
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.google.gson.Gson
 import org.springframework.stereotype.Component
 import java.net.URI
@@ -20,13 +19,12 @@ class MainDataAccess {
     private val API_URL: String = "https://api.github.com"
 
     fun getAllUserRepositories(username: String) : Array<GitHubRepository>? {
-        val repoString = buildRequest(API_URL, "users/$username/repos")
-
+        val repositoryListString = buildRequest(API_URL, "users/$username/repos")
 
         val gson = Gson()
-        val om = ObjectMapper()
 
-        val repositoryList = gson.fromJson<Array<GitHubRepository>>(repoString, Array<GitHubRepository>::class.java)
+        val repositoryList = gson.fromJson(repositoryListString, Array<GitHubRepository>::class.java)
+
         for (repo: GitHubRepository in repositoryList)
             println("${repo.name} -> ${repo.owner}")
 
@@ -34,8 +32,18 @@ class MainDataAccess {
 
     }
 
-    fun getAllRepositoryBranches(username: String, repositoryName: String) :String? {
-        return buildRequest(API_URL, "repos/$username/$repositoryName/branches")
+    fun getAllRepositoryBranches(username: String, repositoryName: String) : Array<GitHubBranch>? {
+        val branchListString = buildRequest(API_URL, "repos/$username/$repositoryName/branches")
+
+        val gson = Gson()
+
+        val branchList = gson.fromJson(branchListString, Array<GitHubBranch>::class.java)
+
+        for (branch: GitHubBranch in branchList) {
+            println("${branch.name} -> ${branch.commit}")
+        }
+
+        return branchList
     }
 }
 
