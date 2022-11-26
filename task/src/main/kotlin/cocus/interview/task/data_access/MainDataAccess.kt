@@ -1,5 +1,8 @@
 package cocus.interview.task.data_access
 
+import cocus.interview.task.responses.ErrorResponse
+import cocus.interview.task.responses.ResponseMessage
+import cocus.interview.task.responses.SuccessResponse
 import cocus.interview.task.structures.GitHubBranch
 import cocus.interview.task.structures.GitHubRepository
 import com.google.gson.Gson
@@ -18,22 +21,28 @@ class MainDataAccess {
 
     private val API_URL: String = "https://api.github.com"
 
-    fun getAllUserRepositories(username: String) : Array<GitHubRepository>? {
-        val repositoryListString = buildRequest(API_URL, "users/$username/repos")
+    fun getAllUserRepositories(username: String) : ResponseMessage {
+        val response = buildRequest(API_URL, "users/$username/repos")
+
+        if (response == null) return ErrorResponse(500, "Error from the API")
+        if (response.statusCode() == 404) return ErrorResponse(response.statusCode(), "Username does not exist")
+
+        val repositoryListString = response.body()
 
         val gson = Gson()
-
         val repositoryList = gson.fromJson(repositoryListString, Array<GitHubRepository>::class.java)
 
+        //Data Visualization
         for (repo: GitHubRepository in repositoryList)
             println("${repo.name} -> ${repo.owner}")
 
-        return repositoryList
+        return SuccessResponse(200, repositoryList)
 
     }
 
     fun getAllRepositoryBranches(username: String, repositoryName: String) : Array<GitHubBranch>? {
-        val branchListString = buildRequest(API_URL, "repos/$username/$repositoryName/branches")
+        val response = buildRequest(API_URL, "repos/$username/$repositoryName/branches")
+        val branchListString = response?.body()
 
         val gson = Gson()
 
@@ -47,7 +56,7 @@ class MainDataAccess {
     }
 }
 
-fun buildRequest(url: String, path: String): String? {
+fun buildRequest(url: String, path: String): HttpResponse<String>? {
     val client = HttpClient.newBuilder().build()
 
     //testing only
@@ -62,5 +71,5 @@ fun buildRequest(url: String, path: String): String? {
     //testing only
     //print(response.body())
 
-    return response.body()
+    return response
 }

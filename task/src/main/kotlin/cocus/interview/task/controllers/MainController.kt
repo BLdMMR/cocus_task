@@ -5,6 +5,8 @@ import cocus.interview.task.responses.ResponseMessage
 import cocus.interview.task.services.MainServices
 import cocus.interview.task.structures.GitHubBranch
 import cocus.interview.task.structures.GitHubRepository
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -20,9 +22,13 @@ import org.springframework.web.bind.annotation.RestController
 class MainController (private val services: MainServices) {
 
     @GetMapping("/{username}")
-    fun getRepos(@PathVariable username: String) : ResponseMessage {
+    fun getAllUserRepositories(@PathVariable username: String) : ResponseEntity<ResponseMessage>? {
         val repositoryList = services.getAllUserRepositories(username)
-        if (repositoryList == null)
+
+        if (repositoryList != null) {
+            return ResponseEntity<ResponseMessage>(repositoryList, HttpStatus.valueOf(repositoryList.status))
+        }
+        else return null
     }
 
     @GetMapping("/{username}/{repositoryName}")

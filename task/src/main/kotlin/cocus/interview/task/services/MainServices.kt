@@ -15,14 +15,14 @@ import org.springframework.stereotype.Component
 class MainServices (private val repository: MainDataAccess) {
 
     fun getAllUserRepositories(username: String) : ResponseMessage? {
-        if (username.trim() == "") return ErrorResponse("400", "Username has no readable characters")
+        if (username.trim() == "") return ErrorResponse(400, "Username has no readable characters")
         val repositoryList = repository.getAllUserRepositories(username)
-        if (repositoryList.isNullOrEmpty()) return ErrorResponse("404", "Username not found or ")
-        for (repo: GitHubRepository in repositoryList) {
+        if (repositoryList.status != 200) return repositoryList
+        for (repo: GitHubRepository in repositoryList.message) {
             repo.branches = repository.getAllRepositoryBranches(username, repo.name)
         }
 
-        return SuccessResponse("200", repositoryList)
+        return SuccessResponse(200, repositoryList)
 
         //return "from services ${repository.getAllUserRepos(username)}"
     }

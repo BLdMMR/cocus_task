@@ -1,6 +1,6 @@
 package cocus.interview.task.responses
 
 interface ResponseMessage {
-    val status: String
+    val status: Int
     val message: Any
 }
