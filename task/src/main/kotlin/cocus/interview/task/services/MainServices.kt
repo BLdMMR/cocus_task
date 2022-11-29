@@ -1,12 +1,14 @@
 package cocus.interview.task.services
 
+import cocus.interview.task.GitHubServerException
+import cocus.interview.task.NoReadableCharactersException
+import cocus.interview.task.UnknownErrorException
+import cocus.interview.task.UnknownUsernameException
 import cocus.interview.task.data_access.MainDataAccess
-import cocus.interview.task.responses.ErrorResponse
-import cocus.interview.task.responses.ResponseMessage
-import cocus.interview.task.responses.SuccessResponse
 import cocus.interview.task.structures.GitHubBranch
 import cocus.interview.task.structures.GitHubRepository
 import org.springframework.stereotype.Component
+import java.util.*
 
 /**
  * Class responsible for treating and validating the data that is passed and returned
@@ -14,15 +16,27 @@ import org.springframework.stereotype.Component
 @Component
 class MainServices (private val repository: MainDataAccess) {
 
-    fun getAllUserRepositories(username: String) : ResponseMessage? {
-        if (username.trim() == "") return ErrorResponse(400, "Username has no readable characters")
-        val repositoryList = repository.getAllUserRepositories(username)
-        if (repositoryList.status != 200) return repositoryList
-        for (repo: GitHubRepository in repositoryList.message) {
-            repo.branches = repository.getAllRepositoryBranches(username, repo.name)
+    fun getAllUserRepositories(username: String) : LinkedList<GitHubRepository>? {
+        if (username.trim() == "") throw NoReadableCharactersException("Username has no readable characters")
+        try {
+            val repositoryList = repository.getAllUserRepositories(username)
+            if (repositoryList == null) throw UnknownErrorException("Unknown Error")
+
+            for (repo: GitHubRepository in repositoryList) {
+                if (!repo.fork) {
+                    repo.branches = repository.getAllRepositoryBranches(username, repo.name)
+                } else {
+                    repositoryList.remove(repo)
+                }
+            }
+            return repositoryList
+
+        } catch (uue : UnknownUsernameException) {
+            throw uue
+        } catch (gse : GitHubServerException) {
+            throw gse
         }
 
-        return SuccessResponse(200, repositoryList)
 
         //return "from services ${repository.getAllUserRepos(username)}"
     }
