@@ -13,4 +13,4 @@ class Commit constructor(var sha: String)
 
 class ErrorResponse(val status: Int, val message: String) : OutputEntity
 
-class GitHubRepositoryList(val githubRepoList: LinkedList<GitHubRepository>) : OutputEntity 
+class GitHubRepositoryList(val githubRepoList: LinkedList<GitHubRepository>) : OutputEntity

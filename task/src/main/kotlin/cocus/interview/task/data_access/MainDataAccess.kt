@@ -59,15 +59,17 @@ class MainDataAccess {
     }
 }
 
-private val ACCESS_TOKEN = "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"
+private val ACCESS_TOKEN = "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"
 
 fun buildRequest(url: String, path: String): HttpResponse<String>? {
     val client = HttpClient.newBuilder().build()
 
+    println("$url/$path")
+
     val request = HttpRequest.newBuilder()
         .uri(URI.create("$url/$path"))
         .GET()
-        .header("Authorization", "Bearer $ACCESS_TOKEN")
+        .setHeader("Authorization", "Bearer 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")
         .build()
     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 

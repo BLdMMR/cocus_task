@@ -22,14 +22,15 @@ class MainServices (private val repository: MainDataAccess) {
             val repositoryList = repository.getAllUserRepositories(username)
             if (repositoryList == null) throw UnknownErrorException("Unknown Error")
 
+            val finalList = LinkedList<GitHubRepository>()
+
             for (repo: GitHubRepository in repositoryList) {
                 if (!repo.fork) {
                     repo.branches = repository.getAllRepositoryBranches(username, repo.name)
-                } else {
-                    repositoryList.remove(repo)
+                    finalList.add(repo)
                 }
             }
-            return repositoryList
+            return finalList
 
         } catch (uue : UnknownUsernameException) {
             throw uue
