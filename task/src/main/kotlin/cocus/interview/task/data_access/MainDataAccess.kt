@@ -59,7 +59,7 @@ class MainDataAccess {
     }
 }
 
-private val ACCESS_TOKEN = "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"
+private val ACCESS_TOKEN = "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"
 
 fun buildRequest(url: String, path: String): HttpResponse<String>? {
     val client = HttpClient.newBuilder().build()
@@ -69,7 +69,7 @@ fun buildRequest(url: String, path: String): HttpResponse<String>? {
     val request = HttpRequest.newBuilder()
         .uri(URI.create("$url/$path"))
         .GET()
-        .setHeader("Authorization", "Bearer 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")
+        .setHeader("Authorization", "Bearer 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")
         .build()
     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 
