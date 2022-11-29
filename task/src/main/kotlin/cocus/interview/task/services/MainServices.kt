@@ -19,11 +19,9 @@ class MainServices (private val repository: MainDataAccess) {
     fun getAllUserRepositories(username: String) : LinkedList<GitHubRepository>? {
         if (username.trim() == "") throw NoReadableCharactersException("Username has no readable characters")
         try {
-            val repositoryList = repository.getAllUserRepositories(username)
-            if (repositoryList == null) throw UnknownErrorException("Unknown Error")
+            val repositoryList = repository.getAllUserRepositories(username) ?: throw UnknownErrorException("Unknown Error")
 
             val finalList = LinkedList<GitHubRepository>()
-
             for (repo: GitHubRepository in repositoryList) {
                 if (!repo.fork) {
                     repo.branches = repository.getAllRepositoryBranches(username, repo.name)
@@ -39,11 +37,6 @@ class MainServices (private val repository: MainDataAccess) {
         }
 
 
-        //return "from services ${repository.getAllUserRepos(username)}"
     }
 
-    //Test Function
-    fun getAllRepositoryBranches(username: String, repositoryName: String): Array<GitHubBranch>? {
-        return repository.getAllRepositoryBranches(username, repositoryName)
-    }
 }

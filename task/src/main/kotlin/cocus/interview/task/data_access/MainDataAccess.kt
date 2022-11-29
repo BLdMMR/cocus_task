@@ -23,12 +23,9 @@ class MainDataAccess {
     private val API_URL: String = "https://api.github.com"
 
     fun getAllUserRepositories(username: String) : LinkedList<GitHubRepository>? {
-        val response = buildRequest(API_URL, "users/$username/repos")
+        val response = buildRequest(API_URL, "users/$username/repos") ?: throw GitHubServerException("Error from the API")
 
-        if (response == null) throw GitHubServerException("Error from the API")
-        //return ErrorResponse(500, "Error from the API")
         if (response.statusCode() == 404) throw UnknownUsernameException("Username does not exist")
-        //(ErrorResponse(response.statusCode(), "Username does not exist")
 
         val repositoryListString = response.body()
 
@@ -59,18 +56,26 @@ class MainDataAccess {
     }
 }
 
-private val ACCESS_TOKEN = "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"
+var ACCESS_TOKEN = ""
 
 fun buildRequest(url: String, path: String): HttpResponse<String>? {
     val client = HttpClient.newBuilder().build()
 
     println("$url/$path")
 
-    val request = HttpRequest.newBuilder()
-        .uri(URI.create("$url/$path"))
-        .GET()
-        .setHeader("Authorization", "Bearer $ACCESS_TOKEN")
-        .build()
+    var request = if (ACCESS_TOKEN == "") {
+        HttpRequest.newBuilder()
+            .uri(URI.create("$url/$path"))
+            .GET()
+            .build()
+    } else {
+        HttpRequest.newBuilder()
+            .uri(URI.create("$url/$path"))
+            .GET()
+            .setHeader("Authorization", "Bearer $ACCESS_TOKEN")
+            .build()
+    }
+
     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 
     return response

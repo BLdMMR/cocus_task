@@ -32,32 +32,17 @@ class MainController (private val services: MainServices) {
             return ResponseEntity.ok().body(GitHubRepositoryList(repositoryList))
 
         } catch (gse: GitHubServerException) {
-
             ResponseEntity(ErrorResponse(500, gse.message!!), HttpStatus.INTERNAL_SERVER_ERROR)
 
         } catch (uue: UnknownUsernameException) {
-
             ResponseEntity(ErrorResponse(404, uue.message!!), HttpStatus.NOT_FOUND)
 
         } catch (error: UnknownErrorException) {
-
             ResponseEntity(ErrorResponse(400, error.message!!), HttpStatus.BAD_REQUEST)
 
         } catch (nrce: NoReadableCharactersException) {
-
             ResponseEntity(ErrorResponse(400, nrce.message!!), HttpStatus.BAD_REQUEST)
         }
-
-
     }
 
-    @GetMapping("/{username}/{repositoryName}")
-    fun getBranches(@PathVariable username: String, @PathVariable repositoryName: String) : Array<GitHubBranch>? {
-        return services.getAllRepositoryBranches(username, repositoryName)
-    }
-
-//    @GetMapping("/test-api")
-//    fun getTestApiConnection(): String? {
-//        return buildRequest("", "")
-//    }
 }
